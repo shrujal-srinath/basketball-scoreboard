@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Control Panel</title>
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    <style>
+        body { background: #111; color: white; font-family: Arial; text-align: center; padding: 30px; }
+        button { margin: 5px; padding: 10px 20px; font-size: 1rem; border: none; border-radius: 5px; cursor: pointer; }
+        .green { background-color: #28a745; color: white; }
+        .red { background-color: #dc3545; color: white; }
+        .blue { background-color: #007bff; color: white; }
+        input[type=number] { width: 60px; text-align: center; font-size: 1rem; }
+    </style>
+</head>
+<body>
+    <h2>Game Code: {{ code }}</h2>
+
+    <!-- Set Team Names -->
+    <form method="POST" action="/set_names/{{ code }}">
+        <input name="home_name" placeholder="Home Name" required>
+        <input name="away_name" placeholder="Away Name" required>
+        <button type="submit" class="blue">Set Team Names</button>
+    </form>
+
+    <!-- Home Team Score -->
+    <h3>{{ state.home_name }}: {{ state.home_score }}</h3>
+    <form method="POST" action="/update/{{ code }}">
+        <input type="hidden" name="team" value="home">
+        <button class="green" name="action" value="increment">+1</button>
+        <button class="red" name="action" value="decrement">-1</button>
+    </form>
+
+    <!-- Away Team Score -->
+    <h3>{{ state.away_name }}: {{ state.away_score }}</h3>
+    <form method="POST" action="/update/{{ code }}">
+        <input type="hidden" name="team" value="away">
+        <button class="green" name="action" value="increment">+1</button>
+        <button class="red" name="action" value="decrement">-1</button>
+    </form>
+
+    <!-- Fouls -->
+    <form method="POST" action="/foul/{{ code }}">
+        <button class="blue" name="team" value="home">Foul ({{ state.home_fouls }})</button>
+        <button class="blue" name="team" value="away">Foul ({{ state.away_fouls }})</button>
+    </form>
+
+    <!-- Period -->
+    <form method="POST" action="/period/{{ code }}">
+        <button class="green">Next Period (Now: {{ state.period }})</button>
+    </form>
+
+    <!-- Reset Game -->
+    <form method="POST" action="/reset/{{ code }}">
+        <button class="red">Reset Game</button>
+    </form>
+
+    <!-- Game Clock Controls -->
+    <h3>Game Clock</h3>
+    <div>
+        <input id="setGameMin" type="number" placeholder="Min" min="0" max="59">
+        <input id="setGameSec" type="number" placeholder="Sec" min="0" max="59">
+        <button onclick="setGameClock()">Set Game Clock</button>
+    </div>
+    <button class="green" onclick="socket.emit('start_game_clock', { room });">Start</button>
+    <button class="blue" onclick="socket.emit('pause_game_clock', { room });">Pause</button>
+    <button class="red" onclick="socket.emit('reset_game_clock', { room });">Reset</button>
+
+    <!-- Shot Clock Controls -->
+    <h3>Shot Clock</h3>
+    <div>
+        <input id="setShot" type="number" placeholder="Secs" min="0" max="99">
+        <button onclick="setShotClock()">Set Shot Clock</button>
+    </div>
+    <button class="green" onclick="socket.emit('start_shot_clock', { room });">Start</button>
+    <button class="blue" onclick="socket.emit('pause_shot_clock', { room });">Pause</button>
+    <button class="red" onclick="socket.emit('reset_shot_clock', { room });">Reset</button>
+
+    <!-- Socket and Clock Setter Scripts -->
+    <script>
+        const socket = io();
+        const room = "{{ code }}";
+        socket.emit("join", { room });
+
+        function setGameClock() {
+            const min = parseInt(document.getElementById('setGameMin').value) || 0;
+            const sec = parseInt(document.getElementById('setGameSec').value) || 0;
+            const total = min * 60 + sec;
+            socket.emit('set_game_clock', { room, seconds: total });
+        }
+
+        function setShotClock() {
+            const sec = parseInt(document.getElementById('setShot').value) || 0;
+            socket.emit('set_shot_clock', { room, seconds: sec });
+        }
+    </script>
+</body>
+</html>

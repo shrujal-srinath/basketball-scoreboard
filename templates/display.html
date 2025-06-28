@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scoreboard Display</title>
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    <style>
+        body { background: black; color: white; font-family: Arial; text-align: center; padding-top: 50px; }
+        .team { font-size: 3rem; margin: 10px; }
+        .score { font-size: 6rem; margin: 20px; }
+        .fouls { font-size: 1.5rem; }
+        .period { font-size: 2rem; margin-top: 20px; }
+        .clock { font-size: 2.5rem; margin-top: 30px; }
+    </style>
+</head>
+<body>
+    <div class="team">{{ state.home_name }} vs {{ state.away_name }}</div>
+    <div class="score">{{ state.home_score }} - {{ state.away_score }}</div>
+    <div class="fouls">
+        Fouls – {{ state.home_name }}: {{ state.home_fouls }} | {{ state.away_name }}: {{ state.away_fouls }}
+    </div>
+    <div class="period">🏀 Period: {{ state.period }}</div>
+    <div class="clock">
+        ⏱ Game Clock: <span id="gameClock">10:00</span><br>
+        ⏲ Shot Clock: <span id="shotClock">24</span>
+    </div>
+    <audio id="buzzer" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
+
+    <script>
+        const socket = io();
+        const room = "{{ code }}";
+        socket.emit("join", { room });
+
+        socket.on("update_state", (data) => {
+            document.querySelector(".team").textContent = `${data.home_name} vs ${data.away_name}`;
+            document.querySelector(".score").textContent = `${data.home_score} - ${data.away_score}`;
+            document.querySelector(".fouls").textContent = `Fouls – ${data.home_name}: ${data.home_fouls} | ${data.away_name}: ${data.away_fouls}`;
+            document.querySelector(".period").textContent = `🏀 Period: ${data.period}`;
+        });
+
+        let gameSeconds = 600;
+        let shotSeconds = 24;
+        let gameInterval, shotInterval;
+
+        function updateClockDisplays() {
+            const gameMin = Math.floor(gameSeconds / 60);
+            const gameSec = gameSeconds % 60;
+            document.getElementById("gameClock").textContent = `${gameMin}:${String(gameSec).padStart(2, '0')}`;
+            document.getElementById("shotClock").textContent = shotSeconds;
+        }
+
+        socket.on("game_clock_started", () => {
+            clearInterval(gameInterval);
+            gameInterval = setInterval(() => {
+                if (gameSeconds > 0) {
+                    gameSeconds--;
+                    updateClockDisplays();
+                }
+            }, 1000);
+        });
+
+        socket.on("game_clock_paused", () => clearInterval(gameInterval));
+        socket.on("game_clock_reset", () => { clearInterval(gameInterval); gameSeconds = 600; updateClockDisplays(); });
+        socket.on("set_game_clock", (data) => { gameSeconds = data.seconds; updateClockDisplays(); });
+
+        socket.on("shot_clock_started", () => {
+            clearInterval(shotInterval);
+            shotInterval = setInterval(() => {
+                if (shotSeconds > 0) {
+                    shotSeconds--;
+                    updateClockDisplays();
+                    if (shotSeconds === 0) document.getElementById("buzzer").play();
+                }
+            }, 1000);
+        });
+
+        socket.on("shot_clock_paused", () => clearInterval(shotInterval));
+        socket.on("shot_clock_reset", () => { clearInterval(shotInterval); shotSeconds = 24; updateClockDisplays(); });
+        socket.on("set_shot_clock", (data) => { shotSeconds = data.seconds; updateClockDisplays(); });
+
+        updateClockDisplays();
+    </script>
+</body>
+</html>

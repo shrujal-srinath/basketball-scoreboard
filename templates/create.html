@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Game - Basketball Scoreboard</title>
+    <style>
+        body {
+            background: #111;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 100px;
+        }
+        input, button {
+            font-size: 1rem;
+            padding: 10px;
+            margin: 10px;
+            width: 200px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <h2>🎮 Create a New Game</h2>
+    <form method="POST">
+        <input name="username" placeholder="Username" required><br>
+        <input name="password" type="password" placeholder="Password" required><br>
+        <button type="submit">Create Game</button>
+    </form>
+</body>
+</html>

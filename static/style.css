@@ -1,0 +1,52 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #121212;
+    color: white;
+}
+
+h1 {
+    font-size: 2rem;
+    margin: 20px;
+}
+
+.team-name-form {
+    margin: 20px;
+}
+
+input[type="text"] {
+    padding: 8px;
+    margin: 0 5px;
+    width: 150px;
+    font-size: 16px;
+}
+
+button {
+    padding: 8px 16px;
+    margin: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.scoreboard {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 30px;
+}
+
+.team {
+    border: 2px solid #ccc;
+    padding: 20px;
+    width: 40%;
+    background-color: #1f1f1f;
+    border-radius: 10px;
+}
+
+.score {
+    font-size: 48px;
+    font-weight: bold;
+}
+
+.controls {
+    margin-top: 30px;
+}
