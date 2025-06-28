@@ -93,6 +93,6 @@ def reset_shot_clock(data):
 def set_shot_clock(data):
     emit('set_shot_clock', {'seconds': data['seconds']}, room=data['room'])
 
-if __name__ == '__main__':
-    socketio.run(app, debug=True)
+
+
 
