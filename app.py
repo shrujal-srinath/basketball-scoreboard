@@ -1,13 +1,10 @@
 from flask import Flask, render_template, request, redirect, session, url_for
 from flask_socketio import SocketIO, emit, join_room
 import os
-import random
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_key'
-
-# Use threading to avoid eventlet problems
-socketio = SocketIO(app, async_mode='threading')
+socketio = SocketIO(app, async_mode='eventlet')
 
 games = {}
 
@@ -92,7 +89,3 @@ def reset_shot_clock(data):
 @socketio.on('set_shot_clock')
 def set_shot_clock(data):
     emit('set_shot_clock', {'seconds': data['seconds']}, room=data['room'])
-
-
-
-
